@@ -14,7 +14,7 @@
           min="1"
           step="1000"
           :placeholder="t('restocking.budgetPlaceholder')"
-          class="budget-input"
+          class="budget-input form-input"
           @keydown.enter="applyBudget"
         />
         <button
@@ -188,7 +188,7 @@ onMounted(loadRecommendations)
 .budget-label {
   font-weight: 600;
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--text-body);
   white-space: nowrap;
 }
 
@@ -201,63 +201,12 @@ onMounted(loadRecommendations)
 
 .budget-input {
   width: 280px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: #334155;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.budget-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.btn-primary {
-  padding: 0.5rem 1rem;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #1d4ed8;
-}
-
-.btn-primary:disabled,
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: #94a3b8;
-  color: #334155;
 }
 
 .budget-active-badge {
   padding: 0.375rem 0.75rem;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--badge-info-bg);
+  color: var(--badge-info-text);
   border-radius: 6px;
   font-size: 0.813rem;
   font-weight: 600;
@@ -278,15 +227,8 @@ onMounted(loadRecommendations)
 
 .reason-cell {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--text-secondary);
   max-width: 200px;
 }
 
-.empty-state {
-  padding: 3rem;
-  text-align: center;
-  color: #64748b;
-  font-size: 1.125rem;
-  font-weight: 600;
-}
 </style>

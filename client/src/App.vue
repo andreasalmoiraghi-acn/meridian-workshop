@@ -23,14 +23,14 @@
             {{ t('nav.demandForecast') }}
           </router-link>
           <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
+            {{ t('nav.reports') }}
           </router-link>
           <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
             {{ t('restocking.title') }}
           </router-link>
         </nav>
         <LanguageSwitcher />
-        <button class="theme-toggle" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
+        <button class="theme-toggle" :aria-label="isDark ? t('nav.switchToLight') : t('nav.switchToDark')" @click="toggleTheme">
           <svg v-if="isDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
           </svg>
@@ -550,6 +550,68 @@ tbody tr:hover {
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
+  font-size: 0.938rem;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--nav-hover-bg);
+  color: var(--text-primary);
+}
+.btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Form inputs ────────────────────────────────────────────── */
+.form-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--text-body);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── Stat cards: colored left accent ───────────────────────── */
+.stat-card.warning { border-left: 3px solid #ea580c; }
+.stat-card.success { border-left: 3px solid #059669; }
+.stat-card.danger  { border-left: 3px solid #dc2626; }
+.stat-card.info    { border-left: 3px solid var(--accent); }
+
+/* ── Empty state ────────────────────────────────────────────── */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-secondary);
   font-size: 0.938rem;
 }
 </style>
