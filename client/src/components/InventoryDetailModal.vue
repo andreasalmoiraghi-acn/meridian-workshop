@@ -4,7 +4,7 @@
       <div v-if="isOpen && inventoryItem" class="modal-overlay" @click="close">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">Inventory Item Details</h3>
+            <h3 class="modal-title">{{ t('modal.inventoryItemDetails') }}</h3>
             <button class="close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -32,60 +32,60 @@
 
             <div class="stock-summary">
               <div class="summary-card primary">
-                <div class="summary-label">Quantity on Hand</div>
-                <div class="summary-value">{{ inventoryItem.quantity_on_hand }} units</div>
+                <div class="summary-label">{{ t('modal.quantityOnHand') }}</div>
+                <div class="summary-value">{{ inventoryItem.quantity_on_hand }} {{ t('common.units') }}</div>
               </div>
               <div class="summary-card" :class="getSummaryCardClass()">
-                <div class="summary-label">Stock Level</div>
+                <div class="summary-label">{{ t('modal.stockLevel') }}</div>
                 <div class="summary-value">{{ stockPercentage }}%</div>
-                <div class="summary-subtitle">vs. reorder point</div>
+                <div class="summary-subtitle">{{ t('modal.vsReorderPoint') }}</div>
               </div>
             </div>
 
             <div class="info-grid">
               <div class="info-item">
-                <div class="info-label">Category</div>
+                <div class="info-label">{{ t('modal.category') }}</div>
                 <div class="info-value">{{ inventoryItem.category }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Location</div>
+                <div class="info-label">{{ t('modal.location') }}</div>
                 <div class="info-value">{{ inventoryItem.location }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Reorder Point</div>
-                <div class="info-value">{{ inventoryItem.reorder_point }} units</div>
+                <div class="info-label">{{ t('modal.reorderPoint') }}</div>
+                <div class="info-value">{{ inventoryItem.reorder_point }} {{ t('common.units') }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Units Remaining</div>
+                <div class="info-label">{{ t('modal.unitsRemaining') }}</div>
                 <div class="info-value">
                   <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
-                    {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
+                    {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} {{ t('common.units') }}
                   </span>
                 </div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Unit Cost</div>
+                <div class="info-label">{{ t('modal.unitCost') }}</div>
                 <div class="info-value">{{ currencySymbol }}{{ inventoryItem.unit_cost.toFixed(2) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Total Value</div>
+                <div class="info-label">{{ t('modal.totalValue') }}</div>
                 <div class="info-value total-value">
                   {{ currencySymbol }}{{ totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
                 </div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Warehouse</div>
+                <div class="info-label">{{ t('modal.warehouse') }}</div>
                 <div class="info-value">{{ translateWarehouse(inventoryItem.location) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Status</div>
+                <div class="info-label">{{ t('modal.status') }}</div>
                 <div class="info-value">
                   <span :class="['badge', getStockStatusClass()]">
                     {{ getStockStatus() }}
@@ -96,7 +96,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <button class="btn-secondary" @click="close">{{ t('common.close') }}</button>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
-const { currentCurrency, translateProductName, translateWarehouse } = useI18n()
+const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
 
 const currencySymbol = computed(() => {
   return currentCurrency.value === 'JPY' ? '¥' : '$'
@@ -141,35 +141,41 @@ const close = () => {
   emit('close')
 }
 
-const getStockStatus = () => {
-  if (!props.inventoryItem) return 'Unknown'
+const getStockStatusKey = () => {
+  if (!props.inventoryItem) return 'unknown'
   if (props.inventoryItem.quantity_on_hand <= props.inventoryItem.reorder_point) {
-    return 'Low Stock'
+    return 'lowStock'
   } else if (props.inventoryItem.quantity_on_hand <= props.inventoryItem.reorder_point * 1.5) {
-    return 'Adequate'
+    return 'adequate'
   } else {
-    return 'In Stock'
+    return 'inStock'
   }
 }
 
+const getStockStatus = () => {
+  const key = getStockStatusKey()
+  if (key === 'unknown') return ''
+  return t(`status.${key}`)
+}
+
 const getStockStatusClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger'
-  if (status === 'Adequate') return 'warning'
+  const key = getStockStatusKey()
+  if (key === 'lowStock') return 'danger'
+  if (key === 'adequate') return 'warning'
   return 'success'
 }
 
 const getStockIconClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger-icon'
-  if (status === 'Adequate') return 'warning-icon'
+  const key = getStockStatusKey()
+  if (key === 'lowStock') return 'danger-icon'
+  if (key === 'adequate') return 'warning-icon'
   return 'success-icon'
 }
 
 const getSummaryCardClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger-card'
-  if (status === 'Adequate') return 'warning-card'
+  const key = getStockStatusKey()
+  if (key === 'lowStock') return 'danger-card'
+  if (key === 'adequate') return 'warning-card'
   return 'success-card'
 }
 </script>

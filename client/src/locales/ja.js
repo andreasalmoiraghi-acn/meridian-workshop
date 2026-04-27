@@ -6,8 +6,11 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
-    subtitle: '在庫管理システム'
+    subtitle: '在庫管理システム',
+    switchToLight: 'ライトモードに切替',
+    switchToDark: 'ダークモードに切替'
   },
 
   // Dashboard
@@ -195,7 +198,8 @@ export default {
     category: 'カテゴリ',
     orderStatus: '注文ステータス',
     all: 'すべて',
-    allMonths: 'すべての月'
+    allMonths: 'すべての月',
+    resetFilters: 'フィルターをリセット'
   },
 
   // Statuses
@@ -383,7 +387,75 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件'
+    items: '件',
+    actions: '操作',
+    units: '個',
+    ofTotal: '% 合計'
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    loading: 'バックログを読み込み中...',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalItems: 'バックログ合計',
+    cardTitle: 'バックログ一覧',
+    noItems: 'バックログなし - すべての注文を履行できます！',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    },
+    unitsShort: '個不足',
+    days: '日'
+  },
+
+  // Modals
+  modal: {
+    inventoryShortageDetails: '在庫不足の詳細',
+    inventoryItemDetails: '在庫品目の詳細',
+    productDetails: '製品詳細',
+    costBreakdown: 'コスト内訳',
+    shortageAmount: '不足数量',
+    daysDelayed: '遅延日数',
+    orderId: '注文ID',
+    itemSku: '品目SKU',
+    quantityNeeded: '必要数量',
+    quantityAvailable: '在庫数量',
+    expectedDate: '予定日',
+    status: 'ステータス',
+    backordered: 'バックオーダー',
+    priority: '優先度',
+    quantityOnHand: '手持在庫数',
+    stockLevel: '在庫レベル',
+    vsReorderPoint: '発注点比',
+    category: 'カテゴリ',
+    location: '場所',
+    reorderPoint: '発注点',
+    unitsRemaining: '残数量',
+    unitCost: '単価',
+    totalValue: '総価値',
+    warehouse: '倉庫',
+    unitsOrdered: '注文数量',
+    totalRevenue: '総収益',
+    currentStock: '現在の在庫',
+    firstOrderDate: '初回注文日',
+    stockStatus: '在庫状況',
+    totalCosts: '総コスト',
+    procurement: '調達',
+    operational: '運営',
+    labor: '人件費',
+    overhead: '間接費',
+    createPO: '発注書を作成',
+    viewPO: '発注書を表示'
   },
 
   // Product Names

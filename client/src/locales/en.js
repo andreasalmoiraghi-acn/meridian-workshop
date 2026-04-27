@@ -6,8 +6,11 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory Management System',
+    switchToLight: 'Switch to light mode',
+    switchToDark: 'Switch to dark mode'
   },
 
   // Dashboard
@@ -195,7 +198,8 @@ export default {
     category: 'Category',
     orderStatus: 'Order Status',
     all: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All Months',
+    resetFilters: 'Reset all filters'
   },
 
   // Statuses
@@ -383,6 +387,74 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    actions: 'Actions',
+    units: 'units',
+    ofTotal: '% of total'
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    cardTitle: 'Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    unitsShort: 'units short',
+    days: 'days'
+  },
+
+  // Modals
+  modal: {
+    inventoryShortageDetails: 'Inventory Shortage Details',
+    inventoryItemDetails: 'Inventory Item Details',
+    productDetails: 'Product Details',
+    costBreakdown: 'Cost Breakdown',
+    shortageAmount: 'Shortage Amount',
+    daysDelayed: 'Days Delayed',
+    orderId: 'Order ID',
+    itemSku: 'Item SKU',
+    quantityNeeded: 'Quantity Needed',
+    quantityAvailable: 'Quantity Available',
+    expectedDate: 'Expected Date',
+    status: 'Status',
+    backordered: 'Backordered',
+    priority: 'Priority',
+    quantityOnHand: 'Quantity on Hand',
+    stockLevel: 'Stock Level',
+    vsReorderPoint: 'vs. reorder point',
+    category: 'Category',
+    location: 'Location',
+    reorderPoint: 'Reorder Point',
+    unitsRemaining: 'Units Remaining',
+    unitCost: 'Unit Cost',
+    totalValue: 'Total Value',
+    warehouse: 'Warehouse',
+    unitsOrdered: 'Units Ordered',
+    totalRevenue: 'Total Revenue',
+    currentStock: 'Current Stock',
+    firstOrderDate: 'First Order Date',
+    stockStatus: 'Stock Status',
+    totalCosts: 'Total Costs',
+    procurement: 'Procurement',
+    operational: 'Operational',
+    labor: 'Labor',
+    overhead: 'Overhead',
+    createPO: 'Create PO',
+    viewPO: 'View PO'
   }
 }
