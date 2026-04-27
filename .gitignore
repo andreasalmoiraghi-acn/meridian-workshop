@@ -52,3 +52,5 @@ logs/
 
 # Environment variables
 .env
+tests/e2e/report/
+test-results/
