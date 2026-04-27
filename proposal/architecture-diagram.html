@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architettura — Meridian Components Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      padding: 40px 32px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 40px;
+    }
+
+    .diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .layer-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    /* ── BROWSER ── */
+    .browser-box {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .browser-icon { font-size: 28px; }
+    .browser-label { font-size: 15px; font-weight: 600; color: #0f172a; }
+    .browser-sub { font-size: 12px; color: #64748b; }
+
+    /* ── ARROW ── */
+    .arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .arrow-line {
+      width: 2px;
+      height: 24px;
+      background: #cbd5e1;
+    }
+    .arrow-head {
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #cbd5e1;
+    }
+    .arrow-label {
+      font-size: 11px;
+      color: #94a3b8;
+      background: #f8fafc;
+      padding: 0 6px;
+      margin-top: -14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── FRONTEND ── */
+    .frontend-box {
+      background: #fff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .frontend-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .badge.green { background: #dcfce7; color: #166534; }
+    .badge.orange { background: #ffedd5; color: #9a3412; }
+    .badge.purple { background: #ede9fe; color: #5b21b6; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .card {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .card.new {
+      background: #f0fdf4;
+      border: 1.5px dashed #86efac;
+    }
+    .card.shared {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+    .card.new .card-title { color: #166534; }
+    .card.shared .card-title { color: #5b21b6; }
+    .card-sub {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    /* ── BACKEND ── */
+    .backend-box {
+      background: #fff;
+      border: 1.5px solid #fde68a;
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .backend-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .endpoints {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .endpoint {
+      background: #fef9c3;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #78350f;
+      font-family: 'SF Mono', monospace;
+    }
+    .endpoint.new {
+      background: #f0fdf4;
+      border: 1.5px dashed #86efac;
+      color: #166534;
+    }
+
+    /* ── DATA ── */
+    .data-box {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .data-file {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #475569;
+      font-family: 'SF Mono', monospace;
+    }
+
+    /* ── TESTS ── */
+    .tests-box {
+      background: #fff;
+      border: 1.5px dashed #86efac;
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .tests-icon { font-size: 24px; }
+    .tests-label { font-size: 14px; font-weight: 600; color: #166534; }
+    .tests-sub { font-size: 12px; color: #64748b; }
+    .flow-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .pill {
+      font-size: 11px;
+      background: #dcfce7;
+      color: #166534;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+    }
+    .legend-dot.existing { background: #f1f5f9; border: 1px solid #cbd5e1; }
+    .legend-dot.new { background: #f0fdf4; border: 1.5px dashed #86efac; }
+    .legend-dot.shared { background: #faf5ff; border: 1px solid #e9d5ff; }
+  </style>
+</head>
+<body>
+
+  <h1>Architettura — Inventory Management Dashboard</h1>
+  <p class="subtitle">Meridian Components · Stato attuale e modifiche previste · RFP #MC-2026-0417</p>
+
+  <div class="diagram">
+
+    <!-- BROWSER -->
+    <div>
+      <div class="layer-label">Client</div>
+      <div class="browser-box">
+        <div class="browser-icon">🌐</div>
+        <div>
+          <div class="browser-label">Browser</div>
+          <div class="browser-sub">Operatori magazzino · San Francisco, London, Tokyo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-label">HTTP / REST</div>
+      <div class="arrow-line"></div>
+      <div class="arrow-head"></div>
+    </div>
+
+    <!-- FRONTEND -->
+    <div>
+      <div class="layer-label">Frontend · Vue 3 + Vite · porta 3000</div>
+      <div class="frontend-box">
+        <div class="frontend-title">
+          Vue 3 Single-Page Application
+          <span class="badge">Composition API</span>
+          <span class="badge green">i18n EN / JA</span>
+        </div>
+
+        <div class="section-label">Viste</div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">Dashboard</div>
+            <div class="card-sub">Sommario KPI e metriche aggregate</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Inventory</div>
+            <div class="card-sub">Stock per magazzino e categoria</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Orders</div>
+            <div class="card-sub">Ordini per stato e periodo</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Demand</div>
+            <div class="card-sub">Forecast domanda</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Spending</div>
+            <div class="card-sub">Analisi spesa fornitori</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Reports <span style="color:#f59e0b">⚠</span></div>
+            <div class="card-sub">In remediation — R1</div>
+          </div>
+        </div>
+        <div class="grid-2" style="grid-template-columns: 1fr;">
+          <div class="card new">
+            <div class="card-title">✦ Restocking <span style="font-weight:400;color:#64748b">(nuovo · R2)</span></div>
+            <div class="card-sub">Raccomandazioni acquisto · input budget operatore · integrazione stock + demand + backlog</div>
+          </div>
+        </div>
+
+        <div class="section-label">Componenti condivisi</div>
+        <div class="grid-3">
+          <div class="card shared">
+            <div class="card-title">FilterBar</div>
+            <div class="card-sub">Magazzino · Categoria · Periodo · Stato</div>
+          </div>
+          <div class="card shared">
+            <div class="card-title">useFilters</div>
+            <div class="card-sub">Stato filtri globale (composable)</div>
+          </div>
+          <div class="card shared">
+            <div class="card-title">api.js</div>
+            <div class="card-sub">Client HTTP centralizzato verso FastAPI</div>
+          </div>
+          <div class="card shared">
+            <div class="card-title">useI18n</div>
+            <div class="card-sub">Gestione lingua e traduzioni</div>
+          </div>
+          <div class="card shared">
+            <div class="card-title">Modali</div>
+            <div class="card-sub">Dettaglio prodotto, ordine, costo, backlog</div>
+          </div>
+          <div class="card shared">
+            <div class="card-title">LanguageSwitcher</div>
+            <div class="card-sub">Selezione lingua per postazione</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-label">JSON over HTTP</div>
+      <div class="arrow-line"></div>
+      <div class="arrow-head"></div>
+    </div>
+
+    <!-- BACKEND -->
+    <div>
+      <div class="layer-label">Backend · Python FastAPI · porta 8001</div>
+      <div class="backend-box">
+        <div class="backend-title">
+          FastAPI REST API
+          <span class="badge orange">Pydantic models</span>
+          <span class="badge orange">CORS open</span>
+        </div>
+        <div class="endpoints">
+          <div class="endpoint">/api/inventory</div>
+          <div class="endpoint">/api/orders</div>
+          <div class="endpoint">/api/demand</div>
+          <div class="endpoint">/api/backlog</div>
+          <div class="endpoint">/api/spending/*</div>
+          <div class="endpoint">/api/reports/*</div>
+          <div class="endpoint">/api/tasks</div>
+          <div class="endpoint">/api/dashboard/summary</div>
+          <div class="endpoint new">✦ /api/restocking</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-label">file I/O</div>
+      <div class="arrow-line"></div>
+      <div class="arrow-head"></div>
+    </div>
+
+    <!-- DATA -->
+    <div>
+      <div class="layer-label">Persistenza · JSON files · server/data/</div>
+      <div class="data-box">
+        <div class="data-file">inventory.json</div>
+        <div class="data-file">orders.json</div>
+        <div class="data-file">demand.json</div>
+        <div class="data-file">spending.json</div>
+        <div class="data-file">backlog.json</div>
+        <div class="data-file">tasks.json</div>
+        <div class="data-file">purchase_orders.json</div>
+      </div>
+    </div>
+
+    <!-- TESTS -->
+    <div style="margin-top: 8px;">
+      <div class="layer-label">Test automatizzati · R3</div>
+      <div class="tests-box">
+        <div class="tests-icon">🧪</div>
+        <div>
+          <div class="tests-label">Playwright E2E · browser end-to-end</div>
+          <div class="tests-sub">Copertura flussi critici · eseguibile in CI · estendibile dal team IT Meridian</div>
+          <div class="flow-pills">
+            <div class="pill">Reports + filtri</div>
+            <div class="pill">Restocking</div>
+            <div class="pill">Inventory</div>
+            <div class="pill">Orders</div>
+            <div class="pill">Switch lingua EN/JA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot existing"></div> Componente esistente</div>
+    <div class="legend-item"><div class="legend-dot new"></div> Nuovo deliverable (R2)</div>
+    <div class="legend-item"><div class="legend-dot shared"></div> Componente condiviso / infrastruttura</div>
+    <div class="legend-item" style="margin-left: auto; color: #f59e0b;">⚠ In remediation (R1)</div>
+  </div>
+
+</body>
+</html>
