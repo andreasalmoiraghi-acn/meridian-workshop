@@ -10,8 +10,11 @@ subito il contesto operativo completo.
 
 - Tutti i requisiti R1–R4 e D1–D3 consegnati e pushati su `main`
 - Remote: `git@github.com:andreasalmoiraghi-acn/meridian-workshop.git`
-- Ultimo commit: `db75bbc`
-- Test: 27/27 passing
+- Ultimo commit su main: `e23dcbc` (backend restocking tests)
+- Test: **32 E2E** (Playwright) + **16 backend** (pytest) — tutti passing
+- PR #1 aperta su `delivery/meridian-engagement`: https://github.com/andreasalmoiraghi-acn/meridian-workshop/pull/1
+- GitHub App for Claude installata (automated review attivo)
+- GitHub PAT salvato in `~/.zshrc` come `GITHUB_PERSONAL_ACCESS_TOKEN` (scope: `repo`)
 
 ---
 
@@ -161,19 +164,25 @@ Quando sei pronto fai merge su main e rimuovi il worktree.
 
 ## Cosa esplorare in una sessione futura
 
-### Non ancora usato — alto valore
+### ✅ Già usato (sessione di follow-up 2026-04-27)
 
-**Playwright MCP** (già configurato in `.mcp.json`)
-- Attivare: `/mcp` → verifica che `playwright` sia connesso
-- Se non connesso: riavvia Claude Code e approva i project MCP servers
-- Vantaggio: Claude naviga l'app live, ispeziona il DOM, genera asserzioni
-  basate su quello che vede — più potente della CLI per UI non documentata
-- Prompt di esempio:
-  ```
-  Usa il Playwright MCP per scrivere un test che verifica il flusso completo
-  del budget su /restocking: inserisci un budget, applica, verifica i badge
-  "Within budget" / "Over budget" nella tabella.
-  ```
+**Playwright MCP** — usato e documentato in `tests/e2e/restocking-budget-mcp.spec.ts`
+- Flusso: `browser_navigate` → `browser_snapshot` (accessibility tree) → selettori da DOM live → test scritti
+- 5 test: initial state, $76K budget, greedy allocation (SRV-301 + PSU-508), clear budget, tiny budget
+- Attivare nelle prossime sessioni: al lancio di Claude Code, approvare i project MCP servers; poi `/mcp` per conferma
+
+**Backend tests con skill** — usato per `tests/backend/test_restocking.py` (16 test)
+- Skill: `.claude/skills/backend-api-test/SKILL.md`
+- Edge case documentato: `budget=0` trattato come "no budget" per Python truthiness
+
+**PR + GitHub App**
+- PR #1: `delivery/meridian-engagement` → `main`, lasciata aperta come artifact
+- GitHub App installata: https://github.com/apps/claude
+- GitHub MCP: configurato con PAT in `~/.zshrc`; richiede restart Claude Code per leggere la variabile
+
+---
+
+### Non ancora usato — alto valore
 
 **`/ultrareview`** — review multi-agente cloud dell'intero branch
 - Richiede GitHub remote configurato (già fatto)
