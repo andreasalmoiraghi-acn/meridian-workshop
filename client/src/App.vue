@@ -30,6 +30,14 @@
           </router-link>
         </nav>
         <LanguageSwitcher />
+        <button class="theme-toggle" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
+          <svg v-if="isDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
@@ -62,6 +70,7 @@ import { ref, onMounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
+import { useTheme } from './composables/useTheme'
 import FilterBar from './components/FilterBar.vue'
 import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
@@ -80,6 +89,7 @@ export default {
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
+    const { isDark, toggleTheme } = useTheme()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
@@ -153,6 +163,8 @@ export default {
 
     return {
       t,
+      isDark,
+      toggleTheme,
       showProfileDetails,
       showTasks,
       tasks,
@@ -165,6 +177,56 @@ export default {
 </script>
 
 <style>
+/* ── Light theme (default) ─────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  --bg:               #f8fafc;
+  --surface:          #ffffff;
+  --surface-raised:   #f8fafc;
+  --border:           #e2e8f0;
+  --border-subtle:    #f1f5f9;
+  --text-primary:     #0f172a;
+  --text-body:        #334155;
+  --text-secondary:   #64748b;
+  --text-muted:       #475569;
+  --nav-hover-bg:     #f1f5f9;
+  --accent:           #2563eb;
+  --accent-bg:        #eff6ff;
+  --shadow-sm:        0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.06);
+  /* badges */
+  --badge-success-bg: #d1fae5; --badge-success-text: #065f46;
+  --badge-warning-bg: #fed7aa; --badge-warning-text: #92400e;
+  --badge-danger-bg:  #fecaca; --badge-danger-text:  #991b1b;
+  --badge-info-bg:    #dbeafe; --badge-info-text:    #1e40af;
+  --badge-stable-bg:  #e0e7ff; --badge-stable-text:  #3730a3;
+}
+
+/* ── Dark theme ────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:               #0f172a;
+  --surface:          #1e293b;
+  --surface-raised:   #273549;
+  --border:           #334155;
+  --border-subtle:    #1e293b;
+  --text-primary:     #f1f5f9;
+  --text-body:        #cbd5e1;
+  --text-secondary:   #94a3b8;
+  --text-muted:       #64748b;
+  --nav-hover-bg:     #273549;
+  --accent:           #3b82f6;
+  --accent-bg:        #1e3a5f;
+  --shadow-sm:        0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.25);
+  /* badges — deeper backgrounds, lighter text */
+  --badge-success-bg: #064e3b; --badge-success-text: #6ee7b7;
+  --badge-warning-bg: #431407; --badge-warning-text: #fdba74;
+  --badge-danger-bg:  #450a0a; --badge-danger-text:  #fca5a5;
+  --badge-info-bg:    #1e3a5f; --badge-info-text:    #93c5fd;
+  --badge-stable-bg:  #312e81; --badge-stable-text:  #a5b4fc;
+}
+
+/* ── Reset & base ──────────────────────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
@@ -173,10 +235,11 @@ export default {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  background: var(--bg);
+  color: var(--text-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .app {
@@ -185,13 +248,15 @@ body {
   min-height: 100vh;
 }
 
+/* ── Navigation ────────────────────────────────────────────────── */
 .top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-container {
@@ -209,7 +274,7 @@ body {
 }
 
 .nav-container > .language-switcher {
-  margin-right: 1rem;
+  margin-right: 0.5rem;
 }
 
 .logo {
@@ -221,16 +286,16 @@ body {
 .logo h1 {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
 }
 
 .subtitle {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 400;
   padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid var(--border);
 }
 
 .nav-tabs {
@@ -240,7 +305,7 @@ body {
 
 .nav-tabs a {
   padding: 0.625rem 1.25rem;
-  color: #64748b;
+  color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.938rem;
@@ -250,13 +315,13 @@ body {
 }
 
 .nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: var(--text-primary);
+  background: var(--nav-hover-bg);
 }
 
 .nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .nav-tabs a.active::after {
@@ -266,9 +331,33 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: #2563eb;
+  background: var(--accent);
 }
 
+/* ── Theme toggle button ───────────────────────────────────────── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 0.5rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--nav-hover-bg);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+/* ── Layout ────────────────────────────────────────────────────── */
 .main-content {
   flex: 1;
   max-width: 1600px;
@@ -277,6 +366,7 @@ body {
   padding: 1.5rem 2rem;
 }
 
+/* ── Page header ───────────────────────────────────────────────── */
 .page-header {
   margin-bottom: 1.5rem;
 }
@@ -284,16 +374,17 @@ body {
 .page-header h2 {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 0.375rem;
   letter-spacing: -0.025em;
 }
 
 .page-header p {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.938rem;
 }
 
+/* ── Stat cards ────────────────────────────────────────────────── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -302,20 +393,20 @@ body {
 }
 
 .stat-card {
-  background: white;
+  background: var(--surface);
   padding: 1.25rem;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-label {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -326,32 +417,23 @@ body {
 .stat-value {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
 }
 
-.stat-card.warning .stat-value {
-  color: #ea580c;
-}
+.stat-card.warning .stat-value { color: #ea580c; }
+.stat-card.success .stat-value { color: #059669; }
+.stat-card.danger  .stat-value { color: #dc2626; }
+.stat-card.info    .stat-value { color: var(--accent); }
 
-.stat-card.success .stat-value {
-  color: #059669;
-}
-
-.stat-card.danger .stat-value {
-  color: #dc2626;
-}
-
-.stat-card.info .stat-value {
-  color: #2563eb;
-}
-
+/* ── Cards ─────────────────────────────────────────────────────── */
 .card {
-  background: white;
+  background: var(--surface);
   border-radius: 10px;
   padding: 1.25rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   margin-bottom: 1.25rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .card-header {
@@ -360,16 +442,17 @@ body {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .card-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
 }
 
+/* ── Tables ────────────────────────────────────────────────────── */
 .table-container {
   overflow-x: auto;
 }
@@ -380,16 +463,16 @@ table {
 }
 
 thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 th {
   text-align: left;
   padding: 0.5rem 0.75rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -397,8 +480,8 @@ th {
 
 td {
   padding: 0.5rem 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  color: #334155;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-body);
   font-size: 0.875rem;
 }
 
@@ -407,9 +490,10 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: var(--surface-raised);
 }
 
+/* ── Badges ────────────────────────────────────────────────────── */
 .badge {
   display: inline-block;
   padding: 0.313rem 0.75rem;
@@ -420,67 +504,49 @@ tbody tr:hover {
   letter-spacing: 0.025em;
 }
 
-.badge.success {
-  background: #d1fae5;
-  color: #065f46;
+.badge.success,
+.badge.increasing {
+  background: var(--badge-success-bg);
+  color: var(--badge-success-text);
 }
 
 .badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
 }
 
-.badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+.badge.danger,
+.badge.decreasing {
+  background: var(--badge-danger-bg);
+  color: var(--badge-danger-text);
 }
 
 .badge.info {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge.increasing {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge.decreasing {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--badge-info-bg);
+  color: var(--badge-info-text);
 }
 
 .badge.stable {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--badge-stable-bg);
+  color: var(--badge-stable-text);
 }
 
-.badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
+.badge.high  { background: var(--badge-danger-bg);  color: var(--badge-danger-text); }
+.badge.medium{ background: var(--badge-warning-bg); color: var(--badge-warning-text); }
+.badge.low   { background: var(--badge-info-bg);    color: var(--badge-info-text); }
 
-.badge.medium {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.badge.low {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
+/* ── States ────────────────────────────────────────────────────── */
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.938rem;
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: var(--badge-danger-bg);
+  border: 1px solid var(--badge-danger-text);
+  color: var(--badge-danger-text);
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
