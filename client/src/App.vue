@@ -28,6 +28,9 @@
           <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
             {{ t('restocking.title') }}
           </router-link>
+          <router-link to="/backlog" :class="{ active: $route.path === '/backlog' }">
+            {{ t('backlog.title') }}
+          </router-link>
         </nav>
         <LanguageSwitcher />
         <button class="theme-toggle" :aria-label="isDark ? t('nav.switchToLight') : t('nav.switchToDark')" @click="toggleTheme">
