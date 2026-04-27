@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
@@ -119,6 +119,22 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    id: str
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    current_stock: int
+    reorder_point: int
+    recommended_qty: int
+    unit_cost: float
+    estimated_cost: float
+    priority: str
+    reason: str
+    demand_trend: Optional[str] = None
+    within_budget: Optional[bool] = None
 
 # API endpoints
 @app.get("/")
@@ -310,6 +326,91 @@ def get_monthly_trends(
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+_PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
+
+
+@app.get("/api/restocking", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(
+    warehouse: Optional[str] = None,
+    budget: Optional[float] = Query(None, ge=0, le=10_000_000)
+) -> List[RestockingRecommendation]:
+    """Get restocking recommendations based on stock levels and demand forecasts."""
+    demand_map = {d["item_sku"]: d for d in demand_forecasts}
+    filtered_inventory = apply_filters(inventory_items, warehouse=warehouse)
+
+    recommendations = []
+    for item in filtered_inventory:
+        sku = item["sku"]
+        demand = demand_map.get(sku)
+        below_reorder = item["quantity_on_hand"] <= item["reorder_point"]
+        increasing = demand is not None and demand["trend"] == "increasing"
+        forecasted_demand = demand["forecasted_demand"] if demand else 0
+
+        if not below_reorder and not increasing:
+            continue
+
+        if below_reorder and increasing:
+            priority = "high"
+            reason = "below_reorder_and_increasing_demand"
+        elif below_reorder:
+            priority = "medium"
+            reason = "below_reorder_point"
+        else:
+            if item["quantity_on_hand"] < forecasted_demand:
+                priority = "low"
+                reason = "increasing_demand"
+            else:
+                continue
+
+        # For demand-only items, cover the forecast gap plus a safety buffer.
+        # For items below reorder point, top up to 2x reorder point (or forecast, whichever is larger).
+        if reason == "increasing_demand":
+            demand_gap = forecasted_demand - item["quantity_on_hand"]
+            recommended_qty = max(demand_gap + item["reorder_point"], 1)
+        else:
+            base_qty = item["reorder_point"] * 2 - item["quantity_on_hand"]
+            if forecasted_demand > 0:
+                demand_driven_qty = forecasted_demand - item["quantity_on_hand"] + item["reorder_point"]
+                recommended_qty = max(base_qty, demand_driven_qty, 1)
+            else:
+                recommended_qty = max(base_qty, 1)
+
+        estimated_cost = round(recommended_qty * item["unit_cost"], 2)
+
+        recommendations.append({
+            "id": item["id"],
+            "sku": sku,
+            "name": item["name"],
+            "category": item["category"],
+            "warehouse": item["warehouse"],
+            "current_stock": item["quantity_on_hand"],
+            "reorder_point": item["reorder_point"],
+            "recommended_qty": recommended_qty,
+            "unit_cost": item["unit_cost"],
+            "estimated_cost": estimated_cost,
+            "priority": priority,
+            "reason": reason,
+            "demand_trend": demand["trend"] if demand else None,
+            "within_budget": None
+        })
+
+    recommendations.sort(key=lambda r: (_PRIORITY_ORDER[r["priority"]], -r["estimated_cost"]))
+
+    # Greedy budget allocation: processes items in priority order (high→medium→low),
+    # marks each within_budget if it fits within the remaining balance.
+    # This is not a globally optimal knapsack solution.
+    if budget is not None and budget > 0:
+        cumulative = 0.0
+        for rec in recommendations:
+            if cumulative + rec["estimated_cost"] <= budget:
+                rec["within_budget"] = True
+                cumulative += rec["estimated_cost"]
+            else:
+                rec["within_budget"] = False
+
+    return recommendations
+
 
 if __name__ == "__main__":
     import uvicorn

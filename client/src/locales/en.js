@@ -334,6 +334,43 @@ export default {
     loading: 'Loading reports...'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking Recommendations',
+    subtitle: 'Items requiring replenishment based on stock levels and demand forecasts',
+    budgetLabel: 'Available Budget (USD)',
+    budgetPlaceholder: 'Enter budget to filter recommendations...',
+    applyBudget: 'Apply Budget',
+    clearBudget: 'Clear',
+    totalItems: 'Items to Restock',
+    highPriority: 'High Priority',
+    totalCost: 'Total Estimated Cost',
+    withinBudget: 'Within Budget',
+    tableTitle: 'Recommended Restocking Orders',
+    sku: 'SKU',
+    itemName: 'Item Name',
+    category: 'Category',
+    warehouse: 'Warehouse',
+    currentStock: 'Current Stock',
+    reorderPoint: 'Reorder Point',
+    recommendedQty: 'Recommended Qty',
+    unitCost: 'Unit Cost',
+    estimatedCost: 'Estimated Cost',
+    priority: 'Priority',
+    reason: 'Reason',
+    budgetStatus: 'Budget',
+    budgetActiveLabel: 'Active budget',
+    budgetOk: 'Within budget',
+    budgetOver: 'Over budget',
+    noItems: 'No restocking needed — all stock levels are adequate.',
+    loading: 'Loading recommendations...',
+    reasons: {
+      below_reorder_and_increasing_demand: 'Below reorder point + increasing demand',
+      below_reorder_point: 'Below reorder point',
+      increasing_demand: 'Increasing demand forecast'
+    }
+  },
+
   // Common
   common: {
     loading: 'Loading...',

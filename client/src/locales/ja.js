@@ -334,6 +334,43 @@ export default {
     loading: 'レポートを読み込み中...'
   },
 
+  // Restocking
+  restocking: {
+    title: '補充推奨',
+    subtitle: '在庫レベルと需要予測に基づく補充が必要なアイテム',
+    budgetLabel: '利用可能予算（USD）',
+    budgetPlaceholder: '予算を入力して推奨事項をフィルター...',
+    applyBudget: '予算を適用',
+    clearBudget: 'クリア',
+    totalItems: '補充が必要なアイテム',
+    highPriority: '高優先度',
+    totalCost: '総推定コスト',
+    withinBudget: '予算内',
+    tableTitle: '推奨発注リスト',
+    sku: 'SKU',
+    itemName: 'アイテム名',
+    category: 'カテゴリ',
+    warehouse: '倉庫',
+    currentStock: '現在の在庫',
+    reorderPoint: '発注点',
+    recommendedQty: '推奨数量',
+    unitCost: '単価',
+    estimatedCost: '推定コスト',
+    priority: '優先度',
+    reason: '理由',
+    budgetStatus: '予算',
+    budgetActiveLabel: '適用中の予算',
+    budgetOk: '予算内',
+    budgetOver: '予算超過',
+    noItems: '補充不要 — すべての在庫レベルは適切です。',
+    loading: '推奨事項を読み込み中...',
+    reasons: {
+      below_reorder_and_increasing_demand: '発注点以下 + 需要増加',
+      below_reorder_point: '発注点以下',
+      increasing_demand: '需要予測増加'
+    }
+  },
+
   // Common
   common: {
     loading: '読み込み中...',
