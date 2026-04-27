@@ -203,25 +203,27 @@ I test di integrazione vengono scritti in parallelo allo sviluppo, uno strato so
 
 ## Approccio UAT
 
-L'User Acceptance Testing è la fase in cui il team Meridian valida che i deliverable soddisfino i requisiti operativi reali, non solo le specifiche tecniche.
+L'User Acceptance Testing è la fase in cui il team Meridian valida che i deliverable soddisfino i requisiti operativi reali, non solo le specifiche tecniche. Le sessioni UAT si inseriscono nella struttura di governance descritta nel documento Timeline (SAL, Steering, phase-gate review).
 
 **Struttura:**
 
-| Fase UAT | Timing | Partecipanti | Oggetto |
-|---|---|---|---|
-| UAT intermedio | Fine settimana 5 (dopo R1) | Operations + IT | Modulo Reports e test automatizzati base |
-| UAT principale | Fine settimana 9 (dopo R2) | Operations + IT | Sistema completo: R1, R2, R3, R4 |
-| UAT finale | Settimana 10 | Operations | Item desiderati approvati (D1–D3) |
+| ID | Sessione UAT | Timing | Partecipanti | Oggetto |
+|---|---|---|---|---|
+| M3 | UAT intermedio | Fine settimana 5 | Operations + IT | Modulo Reports e test automatizzati base |
+| M6 | UAT principale | Fine settimana 9 | Operations + IT + Okafor | Sistema completo: R1, R2, R3, R4 |
+| — | UAT finale D1–D3 | Settimana 10 | Operations | Item desiderati approvati |
+
+Prima di ciascuna sessione UAT formale sono previste validazioni anticipate tramite prototipo (M2 — Reports, M4 — Restocking), con l'obiettivo di intercettare scostamenti rispetto alle aspettative operative prima del completamento dello sviluppo.
 
 **Processo per ogni sessione UAT:**
 1. Il vendor prepara un ambiente di staging aggiornato e una checklist di accettazione per ogni requisito
 2. Il team Operations esegue i flussi operativi reali (non scenari di test costruiti) e segnala eventuali scostamenti
 3. Il vendor categorizza i feedback: bloccante (fix obbligatorio prima del rilascio), migliorativo (pianificato in fase successiva), fuori scope
-4. Il rilascio in produzione avviene solo dopo sign-off esplicito da Operations e IT
+4. Il rilascio in produzione avviene solo dopo sign-off esplicito da Operations e IT, formalizzato nella phase-gate review
 
-**Criteri di accettazione:** concordati con Meridian al kick-off sulla base dei requisiti R1–R4. Nessun requisito obbligatorio viene chiuso senza approvazione formale.
+**Criteri di accettazione:** concordati con Meridian al kick-off (M0) sulla base dei requisiti R1–R4. Nessun requisito obbligatorio viene chiuso senza approvazione formale.
 
-> **Dipendenze esterne:** disponibilità del team Operations per le sessioni UAT nelle finestre indicate (stimato: mezza giornata per UAT intermedio, una giornata per UAT principale) — da confermare al kick-off e da inserire nel calendario Meridian con anticipo.
+> **Dipendenze esterne:** disponibilità del team Operations per le sessioni UAT nelle finestre indicate (mezza giornata per M3, una giornata per M6) — da confermare al kick-off e da inserire nel calendario Meridian con anticipo.
 
 ---
 
