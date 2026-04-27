@@ -91,7 +91,9 @@ Una skill è un template di prompt riutilizzabile per task strutturati. Diversam
 
 Contiene: struttura directory dei test, 10 pattern con codice esempio (happy path, filter testing, cross-endpoint validation, data type validation...), naming conventions, fixture disponibili, valori di test validi (warehouses, categories, statuses).
 
-**Come si usa:** si invoca con `/skill:backend-api-test` nel prompt, oppure Claude la carica automaticamente quando il contesto lo suggerisce.
+**Come si usa:** si invoca nel prompt citando esplicitamente la skill — es. "Usa la skill backend-api-test per scrivere i test per `/api/restocking`". Claude carica `SKILL.md` come contesto aggiuntivo e lo applica durante la generazione del codice.
+
+**Risultato concreto nel workshop:** invocando la skill per `test_restocking.py`, i 16 test generati seguivano esattamente la struttura documentata — classe `TestRestockingEndpoints`, sezioni commentate (happy path / structure / business logic / filters / edge cases), naming convention `test_<comportamento>_<aspettativa>`. Senza la skill, avremmo ottenuto test funzionalmente equivalenti ma stilisticamente inconsistenti con il resto della suite.
 
 **Differenza con un agente:**
 - Un **agente** è un'istanza separata con il suo contesto, i suoi tool, il suo modello
@@ -204,6 +206,40 @@ git branch -d feature/backlog-nav                 # pulizia branch
 
 ---
 
+## 7. Playwright MCP — test da DOM live
+
+Il Playwright MCP è un server MCP già configurato in `.mcp.json` nel repo. Quando approvato al lancio di Claude Code ("approve project MCP servers"), i tool `mcp__playwright__*` diventano disponibili nella sessione.
+
+**Tool principali:**
+
+| Tool | Cosa fa |
+|---|---|
+| `browser_navigate` | Naviga a un URL nel browser controllato |
+| `browser_snapshot` | Restituisce l'accessibility tree del DOM corrente (con `ref` per ogni elemento) |
+| `browser_click` | Clicca su un elemento via `ref` |
+| `browser_fill_form` | Compila un form |
+| `browser_take_screenshot` | Screenshot della pagina corrente |
+
+**Il flusso usato nel workshop:**
+
+1. `browser_navigate('/restocking')` — apre la pagina
+2. `browser_snapshot()` — ispeziona il DOM; restituisce struttura ad albero con tutti gli elementi accessibili, i loro ruoli, testi e `ref`
+3. Da quello snapshot: identifica i selettori reali (es. `.stat-card.success` per il budget card, `getByPlaceholder(/enter budget/i)` per l'input)
+4. Scrive i test Playwright usando quei selettori — già verificati sul DOM live
+5. Esegue i test via CLI per conferma finale
+
+**Differenza chiave rispetto alla CLI:**
+
+Con la CLI i selettori vengono inferiti dal codice sorgente (es. "il template usa `class="stat-card success"` quindi uso `.stat-card.success`"). Con il MCP vengono letti dall'accessibility tree del DOM renderizzato — considera il CSS, i `v-if`, i componenti dinamici. Il caso concreto nel workshop: `getByText('Within Budget')` avrebbe restituito 3 elementi (label del card + 2 badge nella tabella) → strict mode violation. Il DOM snapshot mostrava subito la struttura effettiva e il selettore corretto.
+
+**Come attivare:**
+1. Aprire Claude Code nella directory del repo
+2. Al prompt iniziale "approve project MCP servers" → approvare
+3. Verificare con `/mcp` che `playwright` sia nello stato `connected`
+4. I tool sono ora disponibili e Claude li usa automaticamente quando appropriato
+
+---
+
 ## Mappa delle feature per scenario
 
 | Scenario | Feature da usare |
@@ -212,9 +248,11 @@ git branch -d feature/backlog-nav                 # pulizia branch
 | Task frontend ripetitivo e ben definito | `vue-expert` (custom agent) |
 | Review sicurezza prima di un merge | `security-auditor` (custom agent) |
 | Scrivere test backend con pattern standard | `backend-api-test` (skill) |
+| Scrivere test E2E con selettori verificati sul DOM | Playwright MCP (`mcp__playwright__*`) |
 | Prevenire scritture accidentali su file critici | Hook `PreToolUse` con exit 2 |
 | Audit trail di tutto quello che Claude ha fatto | Hook `PostToolUse` → log file |
 | Prototipare una feature rischiosa senza toccare main | Worktree su branch dedicato |
 | Liberare finestra di contesto a metà sessione | `/compact` |
 | Cambiare modello per un task specifico | `/model` |
 | Verificare MCP server connessi | `/mcp` |
+| Operazioni GitHub (PR, issue, commenti) | GitHub MCP (richiede PAT con scope `repo` in `GITHUB_PERSONAL_ACCESS_TOKEN`) |

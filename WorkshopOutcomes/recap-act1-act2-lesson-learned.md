@@ -78,7 +78,14 @@ Feature nuova da zero. Backend: endpoint `GET /api/restocking` con modello Pydan
 Prima di iniziare: **Plan Mode** per allineare struttura dati, algoritmo e UI prima di scrivere codice. Dopo l'implementazione: review parallela con tre agenti.
 
 #### R3 — Automated browser tests
-27 test E2E con **Playwright CLI** (`@playwright/test`), 6 spec file che coprono tutti i flussi critici: Dashboard, Inventory, Orders, Reports, Restocking, i18n. Nota: il Playwright MCP non era connesso — soluzione alternativa via CLI, risultato equivalente per l'obiettivo R3.
+27 test E2E con **Playwright CLI** (`@playwright/test`), 6 spec file che coprono tutti i flussi critici: Dashboard, Inventory, Orders, Reports, Restocking, i18n.
+
+In una sessione successiva (stessa giornata), il **Playwright MCP** è stato attivato e usato per aggiungere 5 test derivati da ispezione live del DOM: `tests/e2e/restocking-budget-mcp.spec.ts`. La differenza rispetto all'approccio CLI: invece di inferire i selettori dal codice sorgente, Claude ha navigato l'app in tempo reale tramite `mcp__playwright__browser_snapshot`, ha ispezionato l'accessibility tree, e ha ricavato i selettori da ciò che vedeva effettivamente nel browser. Questo ha evitato un ciclo di debugging sui selettori sbagliati (es. strict mode violation su `getByText('Within Budget')` → risolto subito usando `.stat-card.success`).
+
+**Conteggio finale R3: 32 test E2E + 16 test backend pytest** (vedi sezione seguente).
+
+#### Backend tests con skill `backend-api-test`
+16 test pytest in `tests/backend/test_restocking.py`, scritti invocando esplicitamente la skill `.claude/skills/backend-api-test/SKILL.md`. Pattern applicati: happy path → structure validation → business logic → filter testing → edge cases. Trovato e documentato un edge case reale: `budget=0` è tecnicamente valido (Pydantic `ge=0`) ma Python `if budget:` lo valuta `False` → l'endpoint lo tratta come "no budget" invece di "$0 budget". Il test lo documenta esplicitamente invece di correggerlo frettolosamente.
 
 #### R4 — Architecture documentation
 `proposal/architecture.html` — diagramma interattivo dello stack, flussi dati, componenti. Generato esplorando il codebase, scritto come artefatto comprensibile al team IT di Meridian (non solo agli sviluppatori).
@@ -116,9 +123,11 @@ Ogni agente ha restituito findings indipendenti; tutti risolti prima del commit.
 
 ---
 
-### Cosa avrebbe potuto aiutare (non usato)
+### Cosa avrebbe potuto aiutare (non usato in Act 2, ma usato dopo)
 
-**Playwright MCP** (`.mcp.json` già configurato nel repo) — avrebbe permesso di scrivere i test in modo interattivo: Claude usa gli strumenti `mcp__playwright__*` per navigare l'app in tempo reale, ispezionare il DOM, e generare asserzioni basate su ciò che vede effettivamente. Più potente della CLI per test discovery su UI non documentata. Da attivare: `/mcp` per verificare la connessione, poi riavviare se necessario.
+**Playwright MCP** — ✅ usato nella sessione di follow-up. Era già configurato in `.mcp.json`; bastava approvare i "project MCP servers" al lancio di Claude Code. Una volta connesso, i tool `mcp__playwright__*` erano disponibili nel deferred tools list. Il flusso: `browser_navigate` → `browser_snapshot` (accessibility tree) → selettori derivati dai `ref` reali → test scritti con asserzioni già verificate sul DOM live. Il risultato è diverso dalla CLI: zero cicli di "testa il test, il selettore è sbagliato, correggi, ritesta".
+
+**`/ultrareview`** — review multi-agente cloud dell'intero branch (non solo dei singoli file). Avrebbe avuto senso prima del push finale su main: analisi cross-cutting di sicurezza, performance, accessibilità, coerenza API. Richiede GitHub remote configurato; si lancia con `/ultrareview` dal prompt.
 
 **`/compact`** — Act 2 è lungo. Dopo R2 il contesto era già pesante di schema Pydantic, Vue template, CSS variables. `/compact` avrebbe compresso la storia mantenendo i fatti tecnici chiave (nomi file, decisioni architetturali), rendendo le risposte successive più veloci e precise. Regola pratica: usarlo ogni volta che una fase è completa prima di iniziare la successiva.
 
@@ -131,6 +140,11 @@ Ogni agente ha restituito findings indipendenti; tutti risolti prima del commit.
 **`/model`** — possibilità di switchare modello durante la sessione. Per task di scrittura pura (Act 1, doc generation) un modello più veloce è sufficiente; per reasoning complesso (algoritmo greedy R2, debugging R1) si preferisce il modello più capace. Gestire questo esplicitamente invece di usare sempre lo stesso modello avrebbe ottimizzato velocità e costo.
 
 **Worktrees + dev server paralleli** — durante la demo abbiamo creato e mergiato il worktree, ma non abbiamo avviato il dev server *nel* worktree in parallelo a main. In un contesto reale questo è il killer feature: `npm run dev -- --port 3001` nel worktree, confronto visivo live tra main e feature branch in due tab del browser.
+
+#### DELIVERY.md + PR #1 + GitHub App
+Come chiusura formale dell'engagement: creato `DELIVERY.md` nella root (tabella R1–R4 / D1–D3, test coverage, note su edge case noti), aperto su branch `delivery/meridian-engagement` come pull request #1 su GitHub. GitHub App for Claude installata manualmente (la slash command `/install-github-app` è Teams/Enterprise only — l'installazione avviene a https://github.com/apps/claude).
+
+Nota tecnica: il body della PR è stato creato con codici ANSI nel testo (contaminazione da output di `git log` nel heredoc). Fix via GitHub REST API con `curl -X PATCH` e body JSON pulito — non tramite `gh pr edit` perché richiedeva scope `read:org` non presente nel token. Lezione: **usare `echo` o stringhe literal per il body delle PR, mai interpolare output di comandi con colori**.
 
 ---
 
@@ -161,3 +175,12 @@ Lavorare dentro una narrativa (siamo una società di consulenza, quello è il co
 
 ### 8. Claude Code è un pair programmer, non un code generator
 La differenza si vede nei momenti di debugging: non basta "scrivi il codice", serve "questo test fallisce perché il selettore `.stat-value` non esiste in questa vista — guarda `.kpi-value`". Il modello lavora meglio quando riceve feedback precisi su cosa non torna, piuttosto che ricevere istruzioni generiche e dover indovinare il contesto.
+
+### 9. Il Playwright MCP produce selettori migliori perché li vede, non li indovina
+Test scritti da codice sorgente richiedono un ciclo "scrivi → esegui → correggi il selettore" perché il DOM reale può differire da ciò che il codice fa pensare. Con il MCP, Claude naviga l'app, legge l'accessibility snapshot con i `ref` effettivi, e scrive asserzioni già verificate. Il "tasso di successo al primo run" è significativamente più alto. Il costo è la dipendenza dalla connessione MCP — sempre fare `/mcp` prima di pianificare l'approccio sui test.
+
+### 10. Gli edge case documentati nei test valgono più dei fix frettolosi
+`budget=0` trattato come "no budget" era un bug reale. La tentazione naturale era correggerlo (`if budget is not None:` invece di `if budget:`). Invece: il test documenta il comportamento attuale con un commento esplicito, il DELIVERY.md lo cita come nota nota. Questa scelta è più onesta verso il cliente e più utile per chi manuterrà il codice in futuro — sa esattamente perché il codice fa quello che fa.
+
+### 11. Configurare l'integrazione GitHub prima di averne bisogno, non quando serve
+Il GitHub MCP richiedeva: PAT con scope `repo`, variabile d'ambiente `GITHUB_PERSONAL_ACCESS_TOKEN` in `~/.zshrc`, restart di Claude Code. Tutto questo era già disponibile — non lo avevamo fatto perché non sembrava urgente. Regola pratica: all'inizio di un engagement che include una PR come deliverable, configurare il token nella prima sessione, non nell'ultima.
